@@ -1,4 +1,5 @@
 import getopt
+import os
 import sys
 import json
 import re
@@ -60,9 +61,17 @@ def parse_response(content):
     return results
 
 
-def write_results(results):
-    with open('biosamples-annotations.csv', 'a') as f:
+def write_results(results, block):
+    filename = "biosamples-annotations-" + str(block) + ".csv"
+
+    if not os.path.exists(filename):
+        with open(filename, 'w') as f:
+            writer = unicodecsv.writer(f, delimiter=',')
+            writer.writerow(["ACCESSION", "ATTRIBUTE_TYPE", "ATTRIBUTE_VALUE", "ONTOLOGY_TERM"])
+
+    with open(filename, 'a') as f:
         writer = unicodecsv.writer(f, delimiter=',')
+        print "Writing " + str(len(results)) + " annotations to " + filename
         for result in results:
             writer.writerow([result.accession, result.attributeType, result.attributeValue, result.ontologyTerm])
 
@@ -76,6 +85,9 @@ def main(argv):
     # How many rows to handle at once can be set by argument
     start = 0
     rows = 1000
+
+    # How many samples per file output
+    blocksize = 100000
 
     try:
         opts, argv = getopt.getopt(argv, "hn:", ["help", "numberofrows="])
@@ -93,10 +105,6 @@ def main(argv):
 
     print "Starting to evaluate annotations in BioSamples (doing " + str(rows) + " samples at a time)"
 
-    with open('biosamples-annotations.csv', 'w') as f:
-        writer = unicodecsv.writer(f, delimiter=',')
-        writer.writerow(["ACCESSION", "ATTRIBUTE_TYPE", "ATTRIBUTE_VALUE", "ONTOLOGY_TERM"])
-
     # Execute request to get documents
     initial_response = requests.get(baseurl + '&start=' + str(start) + '&rows=' + str(rows))
 
@@ -106,13 +114,14 @@ def main(argv):
         print "Found " + str(total) + " sample documents in total"
 
         while start < total:
+            block = (start / blocksize) + 1
             request_url = baseurl + '&start=' + str(start) + '&rows=' + str(rows)
             response = requests.get(request_url)
-            print 'Requesting samples from ' + request_url
+            print 'Fetching samples, done so far: ' + str(start)
             if response.status_code == 200:
                 content = json.loads(response.content)
                 results = parse_response(content)
-                write_results(results)
+                write_results(results, block)
             start += rows
 
     print "All done!"
