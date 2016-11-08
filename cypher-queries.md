@@ -70,3 +70,9 @@ MATCH (at:AttributeType {name: "Disease State"})<-[:has_type]-(a:Attribute)-[:ha
 ~~~~
 MATCH (at:AttributeType {name: "Disease State"})<-[:has_type]-(a:Attribute)-[:has_value]->(av:AttributeValue) WITH a, av MATCH (s:Sample)-[:has_attribute]->(a)-[:has_value]->(av) WITH av, COUNT(s) AS usage_count RETURN av.name, usage_count ORDER BY usage_count DESC
 ~~~~
+
+### Get a list of attribute values which have more than one attribute type, sorted by most frequently used
+
+~~~~
+MATCH (av:AttributeValue)<-[:has_value]-(:Attribute)-[:has_type]->(at:AttributeType) WITH av, COUNT(at) AS num_of_types WHERE num_of_types > 1 MATCH (s:Sample)-[:has_attribute]->(a:Attribute)-[:has_value]->(av) WITH av, COUNT(s) AS usage_count RETURN av ORDER BY usage_count DESC LIMIT 10
+~~~~
