@@ -1,5 +1,28 @@
 # Cypher queries for BioSamples Attribute Analysis
 
+## Set up indexes
+
+Initialise indexes over nodes and properties we're going to use
+
+### Samples
+
+~~~~
+CREATE CONSTRAINT ON (s:Sample) ASSERT s.accession IS UNIQUE
+~~~~
+
+### Attributes
+
+~~~~
+CREATE INDEX on :Attribute(type)
+CREATE INDEX on :Attribute(value)
+~~~~
+
+### Ontology Terms
+
+~~~~
+CREATE CONSTRAINT ON (ot:OntologyTerm) ASSERT ot.iri IS UNIQUE
+~~~~
+
 ## Data loading
 
 The following cypher query handles the contents of the CSV file produced by the file [collate-attributes.py](/blob/master/collate-attributes.py).
