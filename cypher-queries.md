@@ -40,7 +40,7 @@ This data loading takes a long time - it might be better to optimise by splittin
 ### Samples, attributes, attribute types and values
 
 ~~~~
-USING PERIODIC COMMIT 10000 LOAD CSV WITH HEADERS FROM "file:///biosamples-annotations-1.csv" AS line WITH line WHERE line.ATTRIBUTE_TYPE IS NOT NULL MERGE (s:Sample {accession: line.ACCESSION}) MERGE (a:Attribute {type: line.ATTRIBUTE_TYPE, value: line.ATTRIBUTE_VALUE}) MERGE (at:AttributType {name: line.ATTRIBUTE_TYPE}) MERGE (av:AttributeValue {name: line.ATTRIBUTE_VALUE}) MERGE (s)-[:has_attribute]->(a) MERGE (a)-[:has_type]->(at) MERGE (a)-[:has_value]->(av)
+USING PERIODIC COMMIT 10000 LOAD CSV WITH HEADERS FROM "file:///biosamples-annotations-1.csv" AS line WITH line WHERE line.ATTRIBUTE_TYPE IS NOT NULL MERGE (s:Sample {accession: line.ACCESSION}) MERGE (a:Attribute {type: line.ATTRIBUTE_TYPE, value: line.ATTRIBUTE_VALUE}) MERGE (at:AttributeType {name: line.ATTRIBUTE_TYPE}) MERGE (av:AttributeValue {name: line.ATTRIBUTE_VALUE}) MERGE (s)-[:has_attribute]->(a) MERGE (a)-[:has_type]->(at) MERGE (a)-[:has_value]->(av)
 ~~~~
 
 Excludes rows with attribute type is null.
